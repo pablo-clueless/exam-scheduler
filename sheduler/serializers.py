@@ -1,6 +1,6 @@
 from django.db import IntegrityError
 from rest_framework import serializers
-from .models import Course, CustomUser, Department, ExamAttendance, ExamOfficerProfile, Exam, Faculty, RegisteredCourses, StudentProfile, SupervisorProfile
+from .models import Course, CustomUser, Department, ExamAttendance, ExamMaterial, ExamOfficerProfile, Exam, ExamReevaluationRequest, Faculty, RegisteredCourses, StudentProfile, SupervisorProfile
 from django.contrib.auth import authenticate
 
 class UserSerializer(serializers.ModelSerializer):
@@ -141,3 +141,21 @@ class RegisteredCoursesSerializer(serializers.ModelSerializer):
         fields = ['id', 'student', 'course']
         
         
+class ExamMaterialSerializer(serializers.ModelSerializer):
+    course = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all(), required=True)
+    title = serializers.CharField(required=True)
+    file = serializers.FileField(required=True)
+
+    class Meta:
+        model = ExamMaterial
+        fields = ['id', 'course', 'title', 'description', 'file']
+
+class ExamReevaluationRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ExamReevaluationRequest
+        fields = ['id', 'student', 'exam', 'request_date', 'feedback', 'status']
+        
+class ExamMarkTakenSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Exam
+        fields = ['id', 'taken']

@@ -14,7 +14,10 @@ from .serializers import  (
     CourseRegistrationSerializer, 
     CourseSerializer, 
     CreateUserSerializer, 
-    DepartmentSerializer, 
+    DepartmentSerializer,
+    ExamMarkTakenSerializer,
+    ExamMaterialSerializer,
+    ExamReevaluationRequestSerializer, 
     ExamSerializer, 
     FacultySerializer, 
     LoginSerializer,
@@ -30,7 +33,9 @@ from .models import (
     Course, 
     Department, 
     Exam,
-    ExamAttendance, 
+    ExamAttendance,
+    ExamMaterial,
+    ExamReevaluationRequest, 
     Faculty, 
     RegisteredCourses, 
     SupervisorProfile, 
@@ -355,3 +360,48 @@ class StudentExamsView(APIView):
             } for exam in exams
         ]
         return Response(exam_data)
+    
+    
+    
+class ExamMaterialAPIView(APIView):
+    # permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, format=None):
+        materials = ExamMaterial.objects.all()
+        serializer = ExamMaterialSerializer(materials, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, format=None):
+        serializer = ExamMaterialSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ExamReevaluationRequestAPIView(APIView):
+    # permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, format=None):
+        reevaluation_requests = ExamReevaluationRequest.objects.filter(student=request.user.studentprofile)
+        serializer = ExamReevaluationRequestSerializer(reevaluation_requests, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, format=None):
+        serializer = ExamReevaluationRequestSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(student=request.user.studentprofile)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    
+    
+class MarkExamTakenAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, exam_id, format=None):
+        exam = get_object_or_404(Exam, id=exam_id)
+        serializer = ExamMarkTakenSerializer(exam, data={'taken': True}, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'status': 'exam marked as taken'}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

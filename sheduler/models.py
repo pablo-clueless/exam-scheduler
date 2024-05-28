@@ -11,13 +11,14 @@ class CustomUser(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     full_name = models.CharField(max_length=100, verbose_name=_lazy("Full Name"), null=True, blank=False)
     role = models.CharField(max_length=20, choices=(('student', 'Student'), ('supervisor', 'Supervisor'), ('exam_officer', 'Exam_Officer')), default='student')
-    email = models.EmailField(max_length=255, verbose_name=_lazy("Email Address"),unique=True)
+    email = models.EmailField(max_length=255, verbose_name=_lazy("Email Address"), unique=True)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(default=timezone.now)
     is_staff = models.BooleanField(default=False)
-    is_superuser = models.BooleanField( default=False)
+    is_superuser = models.BooleanField(default=False)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
+
     class Meta:
         ordering = ("-created_at",)
         verbose_name = _lazy("User")
@@ -80,7 +81,7 @@ class ExamOfficerProfile(models.Model):
 class StudentProfile(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     student_reg_number = models.CharField(max_length=15)
-    student = models.ForeignKey(CustomUser, on_delete=models.DO_NOTHING, limit_choices_to={'role': 'student'}, related_name='enrollments')
+    student = models.OneToOneField(CustomUser, on_delete=models.DO_NOTHING, related_name='studentprofile')
     department = models.ForeignKey(Department, on_delete=models.DO_NOTHING, null=True, blank=True)
     matriculated = models.BooleanField(default=False)
     year = models.IntegerField(null=True, blank=True)
@@ -96,6 +97,7 @@ class Exam(models.Model):
     venue = models.CharField(max_length=255)
     supervisors = models.ManyToManyField(SupervisorProfile, related_name='exams_supervised')
     exam_officer = models.ForeignKey(ExamOfficerProfile, on_delete=models.DO_NOTHING, related_name='exams_assigned')
+    teken = models.BooleanField(default=False)
 
     def __str__(self):
         return f'{self.course} Exam at {self.venue} on {self.date_time}'
@@ -116,3 +118,23 @@ class RegisteredCourses(models.Model):
     objects = RegisteredCoursesManager()
     def __str__(self):
         return str(self.student)
+    
+    
+class ExamMaterial(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    file = models.FileField("exam/material", blank=True, null=True)
+
+    def __str__(self):
+        return self.title
+
+class ExamReevaluationRequest(models.Model):
+    student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE)
+    exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
+    request_date = models.DateTimeField(auto_now_add=True)
+    feedback = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=20, choices=(('pending', 'Pending'), ('reviewed', 'Reviewed')), default='pending')
+
+    def __str__(self):
+        return f'Reevaluation Request by {self.student}'

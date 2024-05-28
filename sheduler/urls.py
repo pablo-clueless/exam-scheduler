@@ -11,11 +11,14 @@ from .views import (
     DepartmentCreateView,
     DepartmentUpdateView,
     ExamListAPIView,
+    ExamMaterialAPIView,
+    ExamReevaluationRequestAPIView,
     ExamScheduleCreateAPIView,
     FacultyCreateAPIView,
     FacultyUpdateView,
     ListCourses,
     MarkAttendanceAPIView,
+    MarkExamTakenAPIView,
     RegisterUserAPIView,
     StudentExamsView,
     StudentRegisteredCoursesView,
@@ -72,5 +75,11 @@ urlpatterns = [
     
     path('courses/delete_all/', DeleteAllCoursesAPIView.as_view()),
     path('delete-attendance/', DeleteAllAttendances.as_view()),
+    
+    path('exam-materials/', ExamMaterialAPIView.as_view()),
+    path('exam-reevaluation-requests/', ExamReevaluationRequestAPIView.as_view()),
+    
+    
+    path('exam/<uuid:exam_id>/mark-taken/', MarkExamTakenAPIView.as_view()),
     
 ]
