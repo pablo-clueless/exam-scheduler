@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import CustomUser, Faculty, Department, Course, ExamSchedule, SupervisorProfile, ExamOfficerProfile, StudentProfile, ExamAttendance
+from .models import CustomUser, Faculty, Department, Course, Exam, RegisteredCourses, SupervisorProfile, ExamOfficerProfile, StudentProfile, ExamAttendance
 
 @admin.register(CustomUser)
 class CustomUserAdmin(admin.ModelAdmin):
@@ -15,24 +15,34 @@ class DepartmentAdmin(admin.ModelAdmin):
 
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
-    list_display = ['id', 'course_name', 'start_date', 'end_date']
+    list_display = ['id', 'course_name', 'description']
 
-@admin.register(ExamSchedule)
-class ExamScheduleAdmin(admin.ModelAdmin):
-    list_display = ['id', 'course', 'date_time', 'venue', 'exam_officer']
+@admin.register(Exam)
+class ExamAdmin(admin.ModelAdmin):
+    list_display = ['id', 'course', 'date_time', 'get_supervisors', 'venue', 'exam_officer']
+
+    def get_supervisors(self, obj):
+        return ", ".join([str(supervisor) for supervisor in obj.supervisors.all()])
+    get_supervisors.short_description = 'Supervisors'
 
 @admin.register(SupervisorProfile)
 class SupervisorProfileAdmin(admin.ModelAdmin):
-    list_display = ['id', 'supervisor_name', 'exam', 'department', 'employee_id', 'job_title']
+    list_display = ['id', 'supervisor',  'department', 'employee_id', 'job_title']
 
 @admin.register(ExamOfficerProfile)
 class ExamOfficerProfileAdmin(admin.ModelAdmin):
-    list_display = ['id', 'exam_officer_name', 'exam', 'department', 'employee_id', 'job_title']
+    list_display = ['id', 'exam_officer', 'department', 'employee_id', 'job_title']
 
 @admin.register(StudentProfile)
 class StudentProfileAdmin(admin.ModelAdmin):
-    list_display = ['id', 'student_reg_number', 'student_name', 'course', 'department', 'matric', 'year']
+    list_display = ['id', 'student_reg_number', 'student', 'department', 'matriculated', 'year']
 
 @admin.register(ExamAttendance)
 class ExamAttendanceAdmin(admin.ModelAdmin):
     list_display = ['id', 'exam', 'student', 'attended']
+
+
+
+@admin.register(RegisteredCourses)
+class RegisteredCoursesAdmin(admin.ModelAdmin):
+    list_display = ['student', 'course']

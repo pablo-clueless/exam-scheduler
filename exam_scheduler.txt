@@ -1,10 +1,10 @@
-- Students should be allowed to register  courses on their portal
-- As a student, I should be able to get information about my courses and exam centres on my portal
-- Only authorized individuals should have access to the system 
-- As an exam officer, I want to  create and manage exam schedules for all courses in the School of Technology, including setting exam dates, times, locations, and assigning exam supervisors. 
-- As an invigilator being able to take attendance digitally in the exam hall
-- As a student I want to be able to register my courses
-- As a student, I want to request exam re-evaluation or review my graded exam papers
-- As an invigilator, I want to be able to manage exam logistics such as seating arrangements.
+DONE - Students should be allowed to register  courses on their portal
+DONE - As a student, I should be able to get information about my courses and exam centres on my portal
+DONE - Only authorized individuals should have access to the system 
+DONE - As an exam officer, I want to  create and manage exam schedules for all courses in the School of Technology, including setting exam dates, times, locations, and assigning exam supervisors. 
+DONE - As an invigilator being able to take attendance digitally in the exam hall
+DONE - As a student I want to be able to register my courses
+DONE - As a student, I want to be able to receive exam reminders and notifications so that I can stay on top of exam schedules and deadlines.
+DONE - As an invigilator, I want to be able to manage exam logistics such as seating arrangements.
 - As a student, I want to be able to access exam review materials and past exams so that I can prepare effectively for future exams.
-- As a student, I want to be able to receive exam reminders and notifications so that I can stay on top of exam schedules and deadlines.
+- As a student, I want to request exam re-evaluation or review my graded exam papers

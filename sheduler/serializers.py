@@ -1,6 +1,6 @@
 from django.db import IntegrityError
 from rest_framework import serializers
-from .models import Course, CustomUser, ExamOfficerProfile, ExamSchedule, StudentProfile, SupervisorProfile
+from .models import Course, CustomUser, Department, ExamAttendance, ExamOfficerProfile, Exam, Faculty, RegisteredCourses, StudentProfile, SupervisorProfile
 from django.contrib.auth import authenticate
 
 class UserSerializer(serializers.ModelSerializer):
@@ -58,68 +58,86 @@ class LoginSerializer(serializers.Serializer):
             raise serializers.ValidationError('Must include "email" and "password".')
 
 
-    
-    
-class ExamScheduleSerializer(serializers.ModelSerializer):
+class FacultySerializer(serializers.ModelSerializer):
     class Meta:
-        model = ExamSchedule
+        model = Faculty
+        fields = ['id', 'faculty_name']
+
+class DepartmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Department
+        fields = ['id', 'department_name', 'faculty']
+
+
+class CourseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Course
+        fields = ['id', 'course_name', 'department', 'description']
+
+    def validate_course_name(self, value):
+        if Course.objects.filter(course_name=value).exists():
+            raise serializers.ValidationError("A course with this name already exists.")
+        return value
+    
+class ExamSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Exam
         fields = ['id', 'course', 'date_time', 'venue', 'supervisors', 'exam_officer']
-
-    def create(self, validated_data):
-        supervisors_data = validated_data.pop('supervisors')
-        exam_officer_data = validated_data.pop('exam_officer')
-
-        exam_schedule = ExamSchedule.objects.create(**validated_data)
-
-        exam_schedule.supervisors.set(supervisors_data)
-        exam_schedule.exam_officer = exam_officer_data
-        exam_schedule.save()
-
-        return exam_schedule
-
-    def update(self, instance, validated_data):
-        instance.course = validated_data.get('course', instance.course)
-        instance.date_time = validated_data.get('date_time', instance.date_time)
-        instance.venue = validated_data.get('venue', instance.venue)
-
-        supervisors_data = validated_data.get('supervisors')
-        if supervisors_data:
-            instance.supervisors.set(supervisors_data)
-
-        exam_officer_data = validated_data.get('exam_officer')
-        if exam_officer_data:
-            instance.exam_officer = exam_officer_data
-
-        instance.save()
-
-        return instance
 
 
 class SupervisorProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = SupervisorProfile
-        fields = ['id', 'supervisor_name', 'exam', 'department', 'employee_id', 'job_title']
+        fields = ['id', 'supervisor',  'department', 'employee_id', 'job_title']
 
 
 class ExamOfficerProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExamOfficerProfile
-        fields = ['id', 'exam_officer_name', 'exam', 'department', 'employee_id', 'job_title']
+        fields = ['id', 'exam_officer','department', 'employee_id', 'job_title']
 
 
 class StudentProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = StudentProfile
-        fields = ['id', 'student_reg_number', 'student_name', 'course', 'department', 'matric', 'year']
+        fields = ['id', 'student_reg_number', 'student', 'department', 'matriculated', 'year']
         
         
-class CourseRegistrationSerializer(serializers.Serializer):
-    student_id = serializers.UUIDField()
-    course_id = serializers.UUIDField()
+class AttendanceSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = ExamAttendance
+        fields = "__all__"
 
-    def create(self, validated_data):
-        student = StudentProfile.objects.get(id=validated_data['student_id'])
-        course = Course.objects.get(id=validated_data['course_id'])
-        student.course = course
-        student.save()
-        return student
+    def validate(self, data):
+        exam = data.get('exam')
+        student = data.get('student')
+        
+        if ExamAttendance.objects.filter(exam=exam, student=student).exists():
+            raise serializers.ValidationError("This student has been marked attended")
+        
+        return data
+    
+
+    
+class CourseRegistrationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RegisteredCourses
+        fields = ['id', 'student', 'course']
+
+    def validate(self, data):
+        student = data.get('student')
+        course = data.get('course')
+        
+        if RegisteredCourses.objects.filter(student=student, course=course).exists():
+            raise serializers.ValidationError("You have registered for this course.")
+        
+        return data
+    
+    
+class RegisteredCoursesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RegisteredCourses
+        fields = ['id', 'student', 'course']
+        
+        

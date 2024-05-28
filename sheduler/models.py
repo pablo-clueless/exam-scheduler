@@ -4,6 +4,8 @@ from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _lazy
 from django.utils import timezone
 
+from sheduler.manager import RegisteredCoursesManager
+
 
 class CustomUser(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
@@ -43,66 +45,74 @@ class Department(models.Model):
 
 class Course(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    department = models.ForeignKey(Department, on_delete=models.DO_NOTHING, default="")
     course_name = models.CharField(max_length=255)
     description = models.TextField()
-    start_date = models.DateField()
-    end_date = models.DateField()
+    date_addedd = models.DateField(default=timezone.now)
+    
 
     def __str__(self):
         return self.course_name
 
 
-class ExamSchedule(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, )
-    date_time = models.DateTimeField()
-    venue = models.CharField(max_length=255)
-    supervisors = models.ManyToManyField(CustomUser, related_name='exams_supervised', limit_choices_to={'role': 'supervisor'})
-    exam_officer = models.ForeignKey(CustomUser, on_delete=models.DO_NOTHING, related_name='exams_assigned', limit_choices_to={'role': 'exam_officer'})
-
-    def __str__(self):
-        return f'{self.course} Exam at {self.venue} on {self.date_time}'
-
-
 class SupervisorProfile(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    supervisor_name = models.ForeignKey(CustomUser, on_delete=models.DO_NOTHING, limit_choices_to={'role': 'supervisor'}, related_name='supervisor_assignments')
-    exam = models.ForeignKey(ExamSchedule, on_delete=models.DO_NOTHING, null=True, blank=True)
+    supervisor = models.ForeignKey(CustomUser, on_delete=models.DO_NOTHING, limit_choices_to={'role': 'supervisor'}, related_name='supervisor_assignments')
     department = models.ForeignKey(Department, on_delete=models.CASCADE, null=True, blank=True)
     employee_id = models.CharField(max_length=20, default='123456', null=True, blank=True)
     job_title = models.CharField(max_length=20, default='123456', null=True, blank=True)
     
     def __str__(self):
-        return str(self.supervisor_name)
+        return str(self.supervisor)
 
 
 class ExamOfficerProfile(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    exam_officer_name = models.ForeignKey(CustomUser, on_delete=models.DO_NOTHING, limit_choices_to={'role': 'exam_officer'}, related_name='exam_officer_assignments')
-    exam = models.ForeignKey(ExamSchedule, on_delete=models.DO_NOTHING, null=True, blank=True)
+    exam_officer = models.ForeignKey(CustomUser, on_delete=models.DO_NOTHING, limit_choices_to={'role': 'exam_officer'}, related_name='exam_officer_assignments')
     department = models.ForeignKey(Department, on_delete=models.CASCADE, null=True, blank=True)
     employee_id = models.CharField(max_length=20, default='123456', null=True, blank=True)
     job_title = models.CharField(max_length=20, default='123456', null=True, blank=True)
 
     def __str__(self):
-        return str(self.exam_officer_name)
+        return str(self.exam_officer)
 
 
 class StudentProfile(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     student_reg_number = models.CharField(max_length=15)
-    student_name = models.ForeignKey(CustomUser, on_delete=models.DO_NOTHING, limit_choices_to={'role': 'student'}, related_name='enrollments')
-    course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, null=True, blank=True)
+    student = models.ForeignKey(CustomUser, on_delete=models.DO_NOTHING, limit_choices_to={'role': 'student'}, related_name='enrollments')
     department = models.ForeignKey(Department, on_delete=models.DO_NOTHING, null=True, blank=True)
-    matric = models.CharField(max_length=20, null=True, blank=True)
+    matriculated = models.BooleanField(default=False)
     year = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
-        return str(self.student_name)
+        return str(self.student)
+
+
+class Exam(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, )
+    date_time = models.DateTimeField()
+    venue = models.CharField(max_length=255)
+    supervisors = models.ManyToManyField(SupervisorProfile, related_name='exams_supervised')
+    exam_officer = models.ForeignKey(ExamOfficerProfile, on_delete=models.DO_NOTHING, related_name='exams_assigned')
+
+    def __str__(self):
+        return f'{self.course} Exam at {self.venue} on {self.date_time}'
 
 
 class ExamAttendance(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    exam = models.ForeignKey(ExamSchedule, on_delete=models.DO_NOTHING)
-    student = models.ForeignKey(CustomUser, on_delete=models.DO_NOTHING, limit_choices_to={'role': 'student'}, related_name='attendances')
+    exam = models.ForeignKey(Exam, on_delete=models.DO_NOTHING)
+    student = models.ForeignKey(StudentProfile, on_delete=models.DO_NOTHING, related_name='attendances')
     attended = models.BooleanField(default=False)
+
+
+class RegisteredCourses(models.Model):
+    student = models.ForeignKey(StudentProfile, on_delete=models.DO_NOTHING)
+    course = models.ForeignKey(Course, on_delete=models.DO_NOTHING)
+   
+    
+    objects = RegisteredCoursesManager()
+    def __str__(self):
+        return str(self.student)
