@@ -1,4 +1,5 @@
 from django.db import IntegrityError
+from django.db.models import Prefetch
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
@@ -167,7 +168,8 @@ class DepartmentUpdateView(UpdateAPIView):
 class ListDepartmentView(ListAPIView):
     queryset = Department.objects.all()
     serializer_class = DepartmentSerializer
-        
+  
+# this class always returns the entity reference ID instead of the entity object itself        
 class ListSupervisorProfiles(ListAPIView):
     queryset = SupervisorProfile.objects.all()
     serializer_class = SupervisorProfileSerializer
