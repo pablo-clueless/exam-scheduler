@@ -133,6 +133,11 @@ class FacultyUpdateView(UpdateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
 
+class ListFacultyView(ListAPIView):
+    queryset = Faculty.objects.all()
+    serializer_class = FacultySerializer
+
+
 class DepartmentCreateView(CreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -154,7 +159,9 @@ class DepartmentUpdateView(UpdateAPIView):
     serializer_class = DepartmentSerializer
     permission_classes = [permissions.IsAuthenticated]
     
-        
+class ListDepartmentView(ListAPIView):
+    queryset = Department.objects.all()
+    serializer_class = DepartmentSerializer
         
 class ListSupervisorProfiles(ListAPIView):
     queryset = SupervisorProfile.objects.all()

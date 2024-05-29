@@ -53,16 +53,17 @@ INSTALLED_APPS = [
 
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:8000",
+    "http://localhost:5173",
 ]
 
-# CORS_ALLOW_METHODS = (
-#     "DELETE",
-#     "GET",
-#     "OPTIONS",
-#     "PATCH",
-#     "POST",
-#     "PUT",
-# )
+CORS_ALLOW_METHODS = (
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+)
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

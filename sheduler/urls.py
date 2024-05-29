@@ -32,40 +32,41 @@ from .views import (
     ListExamOfficerProfiles,
     ListStudentProfiles,
     StudentCoursesAPIView,
+    ListDepartmentView,
+    ListFacultyView,
 )
 urlpatterns = [
     path('create_user/', RegisterUserAPIView.as_view()),
     path('login/', UserLoginAPIView.as_view()),
     
-    
     path('faculties/create/', FacultyCreateAPIView.as_view()),
+    path('faculties/', ListFacultyView.as_view()),
     path('faculties/update/<int:pk>/', FacultyUpdateView.as_view()),
+
     path('departments/create/', DepartmentCreateView.as_view()),
     path('departments/update/<int:pk>/', DepartmentUpdateView.as_view()),
+    path('departments', ListDepartmentView.as_view()),
     
     
-    path('update-supervisor/<uuid:profile_id>/', UpdateSupervisorProfile.as_view()),
-    path('update-exam-officer/<uuid:profile_id>/', UpdateExamOfficerProfile.as_view()),
-    path('update-student/<uuid:profile_id>/', UpdateStudentProfile.as_view()),
+    path('supervisors/update/<uuid:profile_id>/', UpdateSupervisorProfile.as_view()),
+    path('supervisors/', ListSupervisorProfiles.as_view()),
+
+    path('exam-officers/update/<uuid:profile_id>/', UpdateExamOfficerProfile.as_view()),
+    path('exam-officers/', ListExamOfficerProfiles.as_view()),
     
-    path('list-supervisor-profiles/', ListSupervisorProfiles.as_view()),
-    path('list-exam-officer-profiles/', ListExamOfficerProfiles.as_view()),
-    path('list-student-profiles/', ListStudentProfiles.as_view()),
-    
-    path('exam-schedule/', ExamScheduleCreateAPIView.as_view()),
-    path('update-exam-schedule/<uuid:pk>/', UpdateExamSchedule.as_view()),
-    path('list-exams/', ExamListAPIView.as_view()),
-    
-    
-    
-    path('create-course/', CreateCourseAPIView.as_view()),
-    path('update-course/<uuid:course_id>/', UpdateCourseAPIView.as_view()),
-    path('list-courses/', ListCourses.as_view()),
-    
-    
+    path('students/update/<uuid:profile_id>/', UpdateStudentProfile.as_view()),
+    path('students/', ListStudentProfiles.as_view()),
     path('student/<uuid:student_id>/register-course/', CourseRegistrationAPIView.as_view()),
     path('student/<uuid:student_id>/registered-courses/', StudentRegisteredCoursesView.as_view()),
     path('student/<uuid:student_id>/exams/', StudentExamsView.as_view()),
+    
+    path('exam-schedules/create', ExamScheduleCreateAPIView.as_view()),
+    path('exam-schedules/update/<uuid:pk>/', UpdateExamSchedule.as_view()),
+    path('exam-schedules/', ExamListAPIView.as_view()),
+    
+    path('courses/create', CreateCourseAPIView.as_view()),
+    path('courses/update/<uuid:course_id>/', UpdateCourseAPIView.as_view()),
+    path('courses/', ListCourses.as_view()),
     
     path('supervisor-dashboard/', SupervisorDashboardAPIView.as_view()),
     path('mark-attendance/', MarkAttendanceAPIView.as_view()),
