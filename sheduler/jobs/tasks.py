@@ -13,19 +13,19 @@ scheduler.add_jobstore(DjangoJobStore(), "default")
 def send_exam_reminders():
     close_old_connections() 
 
-    upcoming_exams = Exam.objects.all()
-    # upcoming_exams = Exam.objects.filter(date_time__range=[timezone.now(), timezone.now() + timedelta(seconds=10)])
+    # upcoming_exams = Exam.objects.all()
+    upcoming_exams = Exam.objects.filter(date_time__range=[timezone.now(), timezone.now() + timedelta(hours=24)])
     
     for exam in upcoming_exams:
         students = StudentProfile.objects.filter(registeredcourses__course=exam.course)
         for student in students:
             send_exam_reminder_email('devcaliban@gmail.com', exam.course.course_name, exam.date_time)
             
-    print(upcoming_exams)
+    # print(upcoming_exams)
 
     close_old_connections() 
 
-@register_job(scheduler, "interval", seconds=10)
+@register_job(scheduler, "interval", hours=24)
 def scheduled_job():
     send_exam_reminders()
 
