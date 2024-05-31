@@ -4,10 +4,10 @@ from .models import Course, CustomUser, Department, ExamAttendance, ExamMaterial
 from django.contrib.auth import authenticate
 
 class UserSerializer(serializers.ModelSerializer):
-    class meta:
+    class Meta:
         model = CustomUser
-        feild = "__all__"
-        
+        fields = ['id', 'full_name', 'role', 'email', 'created_at', 'updated_at', 'is_staff', 'is_superuser']
+     
 class CreateUserSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField(max_length=100, required=True)
     email = serializers.EmailField(max_length=255, required=True)
@@ -64,12 +64,15 @@ class FacultySerializer(serializers.ModelSerializer):
         fields = ['id', 'faculty_name']
 
 class DepartmentSerializer(serializers.ModelSerializer):
+    faculty = FacultySerializer()
     class Meta:
         model = Department
         fields = ['id', 'department_name', 'faculty']
 
 
 class CourseSerializer(serializers.ModelSerializer):
+    
+    department = DepartmentSerializer()
     class Meta:
         model = Course
         fields = ['id', 'course_name', 'department', 'description']
@@ -79,48 +82,45 @@ class CourseSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("A course with this name already exists.")
         return value
     
-class ExamSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Exam
-        fields = ['id', 'course', 'date_time', 'venue', 'supervisors', 'exam_officer']
+
 
 
 class SupervisorProfileSerializer(serializers.ModelSerializer):
+    supervisor = UserSerializer()  # Nesting CustomUserSerializer
+
     class Meta:
         model = SupervisorProfile
-        fields = ['id', 'supervisor',  'department', 'employee_id', 'job_title']
+        fields = ['id', 'supervisor', 'department', 'employee_id', 'job_title']
 
 
 class ExamOfficerProfileSerializer(serializers.ModelSerializer):
+    exam_officer = UserSerializer()  # Nesting CustomUserSerializer
+
     class Meta:
         model = ExamOfficerProfile
-        fields = ['id', 'exam_officer','department', 'employee_id', 'job_title']
+        fields = ['id', 'exam_officer', 'department', 'employee_id', 'job_title']
 
 
 class StudentProfileSerializer(serializers.ModelSerializer):
+    student = UserSerializer()  # Nesting CustomUserSerializer
+
     class Meta:
         model = StudentProfile
         fields = ['id', 'student_reg_number', 'student', 'department', 'matriculated', 'year']
-        
-        
-class AttendanceSerializer(serializers.ModelSerializer):
+
     
+
+class ExamSerializer(serializers.ModelSerializer):
+    supervisors = SupervisorProfileSerializer(many=True)  # Set many=True for Many-to-Many relationship
+    exam_officer = ExamOfficerProfileSerializer()
+
     class Meta:
-        model = ExamAttendance
-        fields = "__all__"
-
-    def validate(self, data):
-        exam = data.get('exam')
-        student = data.get('student')
-        
-        if ExamAttendance.objects.filter(exam=exam, student=student).exists():
-            raise serializers.ValidationError("This student has been marked attended")
-        
-        return data
-    
-
+        model = Exam
+        fields = ['id', 'course', 'date_time', 'venue', 'supervisors', 'exam_officer', 'teken']
     
 class CourseRegistrationSerializer(serializers.ModelSerializer):
+    student = StudentProfileSerializer()
+    course = CourseSerializer()
     class Meta:
         model = RegisteredCourses
         fields = ['id', 'student', 'course']
@@ -134,8 +134,26 @@ class CourseRegistrationSerializer(serializers.ModelSerializer):
         
         return data
     
+class AttendanceSerializer(serializers.ModelSerializer):
+    exam = ExamSerializer()
+    student = StudentProfileSerializer()
+    class Meta:
+        model = ExamAttendance
+        fields = "__all__"
+
+    def validate(self, data):
+        exam = data.get('exam')
+        student = data.get('student')
+        
+        if ExamAttendance.objects.filter(exam=exam, student=student).exists():
+            raise serializers.ValidationError("This student has been marked attended")
+        
+        return data
+    
     
 class RegisteredCoursesSerializer(serializers.ModelSerializer):
+    student = StudentProfileSerializer()
+    course = CourseSerializer()
     class Meta:
         model = RegisteredCourses
         fields = ['id', 'student', 'course']
@@ -148,14 +166,35 @@ class ExamMaterialSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ExamMaterial
-        fields = ['id', 'course', 'title', 'description', 'file']
+        fields = ['course', 'title', 'description', 'file']
 
 class ExamReevaluationRequestSerializer(serializers.ModelSerializer):
+    student = StudentProfileSerializer()
+    exam = ExamSerializer
     class Meta:
         model = ExamReevaluationRequest
-        fields = ['id', 'student', 'exam', 'request_date', 'feedback', 'status']
+        fields = ['student', 'exam', 'request_date', 'feedback', 'status']
         
 class ExamMarkTakenSerializer(serializers.ModelSerializer):
     class Meta:
         model = Exam
         fields = ['id', 'taken']
+        
+        
+        
+        
+        
+        
+        
+        
+# class CustomUserSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = CustomUser
+#         fields = ['id', 'full_name', 'email', 'role']
+
+# class SupervisorProfileSerializer(serializers.ModelSerializer):
+#     exams_supervised = CustomUserSerializer(many=True, read_only=True)
+
+#     class Meta:
+#         model = SupervisorProfile
+#         fields = ['id', 'supervisor', 'department', 'employee_id', 'job_title', 'exams_supervised']
