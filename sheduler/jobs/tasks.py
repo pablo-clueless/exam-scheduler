@@ -19,7 +19,7 @@ def send_exam_reminders():
     for exam in upcoming_exams:
         students = StudentProfile.objects.filter(registeredcourses__course=exam.course)
         for student in students:
-            send_exam_reminder_email('devcaliban@gmail.com', exam.course.course_name, exam.date_time)
+            send_exam_reminder_email(student.student.email, exam.course.course_name, exam.date_time)
             
     # print(upcoming_exams)
 

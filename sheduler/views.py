@@ -414,3 +414,16 @@ class MarkExamTakenAPIView(APIView):
             serializer.save()
             return Response({'status': 'exam marked as taken'}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    
+    
+    
+
+
+
+
+# class ListSupervisorProfiles(ListAPIView):
+#     queryset = SupervisorProfile.objects.prefetch_related(
+#         Prefetch('exams_supervised', queryset=CustomUser.objects.all())
+#     ).all()
+#     serializer_class = SupervisorProfileSerializer
