@@ -2,6 +2,7 @@ from django.db import IntegrityError
 from rest_framework import serializers
 from .models import Course, CustomUser, Department, ExamAttendance, ExamMaterial, ExamOfficerProfile, Exam, ExamReevaluationRequest, Faculty, RegisteredCourses, StudentProfile, SupervisorProfile
 from django.contrib.auth import authenticate
+from django.contrib.auth import get_user_model
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -21,41 +22,28 @@ class CreateUserSerializer(serializers.ModelSerializer):
             'email': {'required': True, 'unique': True},
         }
 
+    def validate_email(self, value):
+        if CustomUser.objects.filter(email=value).exists():
+            raise serializers.ValidationError("A user with this email already exists.")
+        return value
+
     def create(self, validated_data):
-        full_name = validated_data.pop('full_name')
-        email = validated_data.pop('email')
-        password = validated_data.pop('password')
-        role = validated_data.pop('role', 'student')
-
-        validated_data['username'] = email
-
-        user = CustomUser.objects.create(
-            full_name=full_name, email=email, password=password, role=role, **validated_data
-        )
+        validated_data['username'] = validated_data['email']
+        user = CustomUser.objects.create_user(**validated_data)
         return user
-
-
 
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField()
 
-    def validate(self, data):
-        email = data.get('email')
-        password = data.get('password')
-
-        if email and password:
-            user = authenticate(request=self.context.get('request'), email=email, password=password)
-
-            if not user:
-                raise serializers.ValidationError('Unable to log in with provided credentials.')
-
-            if not user.is_active:
-                raise serializers.ValidationError('User account is disabled.')
-
+    def validate(self, attrs):
+        email = attrs.get('email')
+        password = attrs.get('password')
+        user = authenticate(username=email, password=password)
+        
+        if user and user.is_active:
             return user
-        else:
-            raise serializers.ValidationError('Must include "email" and "password".')
+        raise serializers.ValidationError("Invalid credentials")
 
 
 class FacultySerializer(serializers.ModelSerializer):
