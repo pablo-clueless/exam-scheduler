@@ -21,20 +21,3 @@ class RegisteredCoursesManager(models.Manager):
             
             return exams
         
-        
-class CustomUserManager(models.Manager):
-    def get_user_details_as_json(self, user_id):
-        
-        CustomUser = apps.get_model('sheduler', 'CustomUser')
-        try:
-            user = self.get(pk=user_id)
-            user_details = {
-                'id': str(user.id),
-                'full_name': user.full_name,
-                'email': user.email,
-                'role': user.role,
-                'is_staff': user.is_staff,
-            }
-            return json.dumps(user_details, cls=DjangoJSONEncoder)
-        except CustomUser.DoesNotExist:
-            return json.dumps({'error': 'User not found'}, cls=DjangoJSONEncoder)

@@ -4,7 +4,7 @@ from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _lazy
 from django.utils import timezone
 
-from sheduler.manager import CustomUserManager, RegisteredCoursesManager
+from sheduler.manager import RegisteredCoursesManager
 
 
 class CustomUser(AbstractUser):
@@ -19,7 +19,6 @@ class CustomUser(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
 
-    objects = CustomUserManager()
     class Meta:
         ordering = ("-created_at",)
         verbose_name = _lazy("User")
