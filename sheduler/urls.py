@@ -48,7 +48,7 @@ urlpatterns = [
 
     path('departments/create/', DepartmentCreateView.as_view()),
     path('departments/update/<int:pk>/', DepartmentUpdateView.as_view()),
-    path('departments', ListDepartmentView.as_view()),
+    path('departments/', ListDepartmentView.as_view()),
     
     
     path('supervisors/update/<uuid:profile_id>/', UpdateSupervisorProfile.as_view()),
