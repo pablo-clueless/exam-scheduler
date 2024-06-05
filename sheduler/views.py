@@ -14,7 +14,8 @@ from .serializers import  (
     AttendanceSerializer,
     CourseRegistrationSerializer, 
     CourseSerializer, 
-    CreateUserSerializer, 
+    CreateUserSerializer,
+    DepartmentCreateSerializer, 
     DepartmentSerializer,
     ExamMarkTakenSerializer,
     ExamMaterialSerializer,
@@ -151,14 +152,14 @@ class ListFacultyView(ListAPIView):
 
 
 class DepartmentCreateView(CreateAPIView):
-    permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         data = request.data.get('departments', [])
         if not isinstance(data, list):
             return Response({"error": "Expected a list of data"}, status=status.HTTP_400_BAD_REQUEST)
         
-        serializer = DepartmentSerializer(data=data, many=True)
+        serializer = DepartmentCreateSerializer(data=data, many=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)

@@ -57,7 +57,12 @@ class DepartmentSerializer(serializers.ModelSerializer):
         model = Department
         fields = ['id', 'department_name', 'faculty']
 
-
+class DepartmentCreateSerializer(serializers.ModelSerializer):
+    # faculty = FacultySerializer()
+    class Meta:
+        model = Department
+        fields = ['id', 'department_name', 'faculty']
+        
 class CourseSerializer(serializers.ModelSerializer):
     
     department = DepartmentSerializer()
