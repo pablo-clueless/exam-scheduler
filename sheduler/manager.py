@@ -1,6 +1,7 @@
+import json
 from django.db import models
 from django.apps import apps
-
+from django.core.serializers.json import DjangoJSONEncoder
 
 
 
@@ -19,3 +20,4 @@ class RegisteredCoursesManager(models.Manager):
             print(registered_courses)
             
             return exams
+        

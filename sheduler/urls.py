@@ -83,4 +83,8 @@ urlpatterns = [
     
     path('exam/<uuid:exam_id>/mark-taken/', MarkExamTakenAPIView.as_view()),
     
+    
+    # IGNORE!
+    # path('supervisor-profiles/', ListSupervisorProfiles.as_view()),
+    
 ]
