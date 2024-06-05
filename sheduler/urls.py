@@ -63,11 +63,11 @@ urlpatterns = [
     path('student/<uuid:student_id>/registered-courses/', StudentRegisteredCoursesView.as_view()),
     path('student/<uuid:student_id>/exams/', StudentExamsView.as_view()),
     
-    path('exam-schedules/create', ExamScheduleCreateAPIView.as_view()),
+    path('exam-schedules/create/', ExamScheduleCreateAPIView.as_view()),
     path('exam-schedules/update/<uuid:pk>/', UpdateExamSchedule.as_view()),
     path('exam-schedules/', ExamListAPIView.as_view()),
     
-    path('courses/create', CreateCourseAPIView.as_view()),
+    path('courses/create/', CreateCourseAPIView.as_view()),
     path('courses/update/<uuid:course_id>/', UpdateCourseAPIView.as_view()),
     path('courses/', ListCourses.as_view()),
     

@@ -58,23 +58,31 @@ class DepartmentSerializer(serializers.ModelSerializer):
         fields = ['id', 'department_name', 'faculty']
 
 class DepartmentCreateSerializer(serializers.ModelSerializer):
-    # faculty = FacultySerializer()
     class Meta:
         model = Department
         fields = ['id', 'department_name', 'faculty']
-        
+
+
 class CourseSerializer(serializers.ModelSerializer):
+    department = DepartmentSerializer
     
-    department = DepartmentSerializer()
     class Meta:
         model = Course
-        fields = ['id', 'course_name', 'department', 'description']
+        fields = ['id', 'course_name', 'course_code', 'department', 'description']
 
+class CourseCreateSerializer(serializers.ModelSerializer):
+    course_name = serializers.CharField(max_length=255)
+    course_code = serializers.CharField(max_length=255)
+    description = serializers.CharField(required=False, allow_blank=True)
+    
+    class Meta:
+        model = Course
+        fields = ['id', 'course_name', 'course_code', 'department', 'description']
+    
     def validate_course_name(self, value):
         if Course.objects.filter(course_name=value).exists():
             raise serializers.ValidationError("A course with this name already exists.")
         return value
-    
 
 
 

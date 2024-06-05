@@ -48,6 +48,7 @@ class Course(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     department = models.ForeignKey(Department, on_delete=models.DO_NOTHING, default="")
     course_name = models.CharField(max_length=255)
+    course_code = models.CharField(max_length=255, default="NO CODE YET")
     description = models.TextField()
     date_addedd = models.DateField(default=timezone.now)
     
