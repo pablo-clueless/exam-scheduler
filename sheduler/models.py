@@ -87,6 +87,12 @@ class StudentProfile(models.Model):
     matriculated = models.BooleanField(default=False)
     year = models.IntegerField(null=True, blank=True)
 
+    def save(self, *args, **kwargs):
+        prefix = "P/ND/21/"
+        if not self.student_reg_number.startswith(prefix):
+            self.student_reg_number = f"{prefix}{self.student_reg_number}"
+        super(StudentProfile, self).save(*args, **kwargs)
+
     def __str__(self):
         return str(self.student)
 

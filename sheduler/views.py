@@ -24,7 +24,8 @@ from .serializers import  (
     ExamSerializer, 
     FacultySerializer, 
     LoginSerializer,
-    RegisteredCoursesSerializer, 
+    RegisteredCoursesSerializer,
+    StudentSerializer, 
     SupervisorProfileSerializer, 
     ExamOfficerProfileSerializer, 
     StudentProfileSerializer
@@ -231,7 +232,7 @@ class UpdateStudentProfile(APIView):
         except StudentProfile.DoesNotExist:
             return Response({"error": "Student Profile not found"}, status=status.HTTP_404_NOT_FOUND)
         
-        serializer = StudentProfileSerializer(profile, data=request.data)
+        serializer = StudentSerializer(profile, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)

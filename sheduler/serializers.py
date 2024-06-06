@@ -102,8 +102,15 @@ class ExamOfficerProfileSerializer(serializers.ModelSerializer):
         fields = ['id', 'exam_officer', 'department', 'employee_id', 'job_title']
 
 
+class StudentSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = StudentProfile
+        fields = ['id', 'student_reg_number', 'student', 'department', 'matriculated', 'year']
+        
+        
 class StudentProfileSerializer(serializers.ModelSerializer):
-    student = UserSerializer()  # Nesting CustomUserSerializer
+    student = UserSerializer() 
 
     class Meta:
         model = StudentProfile
