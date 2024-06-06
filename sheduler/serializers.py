@@ -106,7 +106,7 @@ class StudentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StudentProfile
-        fields = ['id', 'student_reg_number', 'student', 'department', 'matriculated', 'year']
+        fields = ['id', 'student_reg_number', 'student', 'department', 'matriculated','level', 'reg_year']
         
         
 class StudentProfileSerializer(serializers.ModelSerializer):
@@ -114,7 +114,7 @@ class StudentProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StudentProfile
-        fields = ['id', 'student_reg_number', 'student', 'department', 'matriculated', 'year']
+        fields = ['id', 'student_reg_number', 'student', 'department', 'matriculated', 'level', 'reg_year']
 
     
 

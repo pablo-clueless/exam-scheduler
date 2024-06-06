@@ -85,12 +85,18 @@ class StudentProfile(models.Model):
     student = models.OneToOneField(CustomUser, on_delete=models.DO_NOTHING, related_name='studentprofile')
     department = models.ForeignKey(Department, on_delete=models.DO_NOTHING, null=True, blank=True)
     matriculated = models.BooleanField(default=False)
-    year = models.IntegerField(null=True, blank=True)
+    level = models.IntegerField(null=True, blank=True)
+    reg_year = models.IntegerField(default=2021)
 
     def save(self, *args, **kwargs):
-        prefix = "P/ND/21/"
-        if not self.student_reg_number.startswith(prefix):
-            self.student_reg_number = f"{prefix}{self.student_reg_number}"
+        if self.reg_year:
+            last_two_digits_of_year = str(self.reg_year)[-2:]
+        else:
+            last_two_digits_of_year = "00"  # Default value if reg_year is not provided
+
+        unique_code = str(self.student_reg_number).zfill(4)  # Ensure it's 4 digits
+
+        self.student_reg_number = f"P/ND/{last_two_digits_of_year}/321{unique_code}"
         super(StudentProfile, self).save(*args, **kwargs)
 
     def __str__(self):
