@@ -35,7 +35,7 @@ class ExamOfficerProfileAdmin(admin.ModelAdmin):
 
 @admin.register(StudentProfile)
 class StudentProfileAdmin(admin.ModelAdmin):
-    list_display = ['id', 'student_reg_number', 'student', 'department', 'matriculated', 'year']
+    list_display = ['id', 'student_reg_number', 'student', 'department', 'matriculated', 'level', 'reg_year']
 
 @admin.register(ExamAttendance)
 class ExamAttendanceAdmin(admin.ModelAdmin):
